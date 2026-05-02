@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>ERP System</title>
+
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f4f6f9;
+            }
+
+            /* HEADER */
+            .header {
+                background-color: #2c3e50;
+                color: white;
+                padding: 15px;
+                font-size: 20px;
+                text-align: center;
+            }
+
+            /* TABS */
+            .tabs {
+                display: flex;
+                background-color: #34495e;
+            }
+
+            .tab {
+                padding: 15px 20px;
+                cursor: pointer;
+                color: white;
+            }
+
+            .tab:hover {
+                background-color: #3d566e;
+            }
+
+            .active-tab {
+                background-color: #1abc9c;
+            }
+
+            /* CONTENT */
+            .content {
+                padding: 20px;
+            }
+
+            .card {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+            }
+
+            input {
+                padding: 8px;
+                margin: 5px;
+            }
+
+            button {
+                padding: 8px 12px;
+                background-color: #1abc9c;
+                border: none;
+                color: white;
+                cursor: pointer;
+                border-radius: 4px;
+            }
+
+            button:hover {
+                background-color: #16a085;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 10px;
+            }
+
+            th {
+                background-color: #ecf0f1;
+            }
+
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="header"> ERP Sistema </div>
+
+        <div class="tabs">
+            <div class="tab active-tab" onclick="mostrarTab('entidades')"> Entidades </div>
+            <div class="tab" onclick="mostrarTab('productos')"> Productos </div>
+        </div>
+
+        <div class="content">
+
+            <div id="entidades" class="card">
+                <h2>Gestión de Entidades</h2>
+
+                <input type="text" id="nombre">
+                <input type="text" id="apellido">
+                <input type="text" id="email">
+
+                <button onclick="crearEntidad()">Guardar</button>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaEntidades"></tbody>
+                </table>
+
+
+            </div>
+            <!-- PRODUCTOS -->
+            <div id="productos" class="card hidden">
+                <h2>Gestión de Productos</h2>
+
+                <p>🚧 Próximamente vas a conectar esto con tu backend</p>
+
+                <input type="text" placeholder="Nombre producto">
+                <input type="number" placeholder="Precio">
+
+                <button>Guardar</button>
+            </div>
+
+        </div>
+
+        <script>
+            function mostrarTab(tab) {
+                document.getElementById("entidades").classList.add("hidden");
+                document.getElementById("productos").classList.add("hidden");
+
+                document.getElementById(tab).classList.remove("hidden");
+
+                const tabs = document.querySelectorAll(".tab");
+                tabs.forEach(t => t.classList.remove("active-tab"));
+
+                event.target.classList.add("active-tab");
+            }
+
+            function crearEntidad() {
+                const data = {
+                    nombre: document.getElementById("nombre").value,
+                    apellido: document.getElementById("apellido").value,
+                    email: document.getElementById("email").value
+                };
+
+                fetch("http://localhost:8080/api/entidades", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
+                        .then(res => res.json())
+                        .then(() => {
+                            alert("Entidad creada");
+                            cargarEntidades();
+                        });
+            }
+
+            function cargarEntidades() {
+                fetch("http://localhost:8080/api/entidades")
+                        .then(res => res.json())
+                        .then(data => {
+                            const tabla = document.getElementById("tablaEntidades");
+                            tabla.innerHTML = "";
+
+                            data.forEach(entidad => {
+                                tabla.innerHTML += `
+                            <tr>
+                                <td>${entidad.id}</td>
+                                <td>${entidad.nombre}</td>
+                                <td>${entidad.apellido}</td>
+                                <td>${entidad.email}</td>
+                            </tr>
+                        `;
+                            });
+                        });
+            }
+
+            window.onload = function () {
+                cargarEntidades();
+            };
+        </script>
+
+    </body>
+</html>

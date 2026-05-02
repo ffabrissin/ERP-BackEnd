@@ -5,6 +5,7 @@ import com.erp.erp.Repository.EntidadRepository;
 import com.erp.erp.model.Entidad;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  *
@@ -54,23 +55,35 @@ public class EntidadService {
         return entidadRepository.findAll();
     }
 
-    public void control(Entidad entidad) {
-        String sError = "";
+    public Entidad findById(Long id) {
+        return entidadRepository.findById(id)
+                .orElseThrow(() -> new ExceptionGeneralSistema("Entidad no encontrada"));
+    }
 
-        if (entidad.getNombre() == null || entidad.getNombre().isEmpty()) {
-            sError = "El nombre no puede estar vacio.";
+    public void delete(Long id) {
+        Entidad entidad = entidadRepository.findById(id)
+                .orElseThrow(() -> new ExceptionGeneralSistema("Entidad no encontrada"));
+        entidadRepository.delete(entidad);
+    }
+
+    public void control(Entidad entidad) {
+        StringBuilder sError = new StringBuilder();
+
+        if (entidad.getNombre() == null || entidad.getNombre().isBlank()) {
+            sError.append("El nombre no puede estar vacío. ");
         }
-        if (entidad.getApellido() == null || entidad.getApellido().isEmpty()) {
-            sError = "El apellido no puede estar vacio.";
+
+        if (entidad.getApellido() == null || entidad.getApellido().isBlank()) {
+            sError.append("El apellido no puede estar vacío. ");
         }
-        if (entidad.getEmail() == null || entidad.getEmail().isEmpty()) {
-            sError = "El email no puede estar vacio.";
+
+        if (entidad.getEmail() == null || entidad.getEmail().isBlank()) {
+            sError.append("El email no puede estar vacío. ");
         }
 
         if (!sError.isEmpty()) {
-            throw new ExceptionGeneralSistema(sError);
+            throw new ExceptionGeneralSistema(sError.toString());
         }
-
     }
 
 }
